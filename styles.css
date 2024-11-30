@@ -1,0 +1,154 @@
+/* Animations */
+@keyframes gradient-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Variables */
+:root {
+  --gradient-from: rgb(17, 24, 39);
+  --gradient-via: rgb(0, 0, 0);
+  --gradient-to: rgb(31, 41, 55);
+  --text-primary: rgb(209, 213, 219);
+  --text-secondary: rgb(107, 114, 128);
+}
+
+/* Base styles */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  overflow: hidden;
+}
+
+/* Layout */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: white;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(-45deg, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+  background-size: 400% 400%;
+  animation: gradient-move 15s ease infinite;
+}
+
+/* Typography */
+.title {
+  font-size: 5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, rgb(98, 72, 243), rgb(240, 114, 244), rgb(161, 67, 255));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 1rem;
+  margin: 0;
+  animation: gradient-move 4s ease infinite;
+  text-shadow: 0 0 20px rgba(192, 132, 252, 0.5),
+               0 0 40px rgba(229, 114, 244, 0.3);
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Components */
+.command-block {
+  display: inline-block;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.command-block:hover {
+  opacity: 0.8;
+}
+
+.code-block-wrapper pre {
+  background-color: var(--gradient-from);
+  border-radius: 0.5rem;
+  margin: 0;
+  padding: 1rem 1.5rem;
+}
+
+.code-block-wrapper code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.prompt {
+  color: var(--text-secondary);
+  padding-right: 0.5rem;
+}
+
+/* Toast Component */
+.toast {
+  bottom: 2rem;
+  transform: translateX(-50%) translateY(1rem);
+  padding: 0.5rem 1rem;
+  color: rgb(229, 231, 235);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: all 0.3s ease;
+  gap: 0.5rem;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Utility Classes */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: default;
+}
+
+.glass-panel {
+  background-color: rgba(31, 41, 55, 0.5);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(55, 65, 81, 0.5);
+}
+
+.centered-fixed {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.rounded-md {
+  border-radius: 0.5rem;
+}
+
+.rounded-lg {
+  border-radius: 0.75rem;
+}
