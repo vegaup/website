@@ -76,24 +76,14 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
     path = request.path
     path = '/index.html' if path == '/'
 
-    # First try to serve from public directory
-    public_path = "./public#{path}"
-    if File.exist?(public_path)
-      response.body = File.read(public_path)
-      response.content_type = get_content_type(public_path)
+    # Try to serve the file from root directory
+    if File.exist?(path)
+      response.body = File.read(path)
+      response.content_type = get_content_type(path)
       return
     end
 
-    # Then try to serve from templates
-    template_path = "./templates#{path}"
-    if File.exist?(template_path)
-      content = File.read(template_path)
-      response.body = inject_live_reload(content)
-      response.content_type = 'text/html'
-      return
-    end
-
-    # If neither exists, serve 404
+    # If file doesn't exist, serve 404
     serve_404(response)
   rescue => e
     response.status = 500
@@ -104,8 +94,8 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
 
   def serve_404(response)
     response.status = 404
-    if File.exist?('.nine/templates/404.html')
-      response.body = File.read('.nine/templates/404.html')
+    if File.exist?('404.html')
+      response.body = File.read('404.html')
     else
       response.body = '404 Not Found'
     end
@@ -167,7 +157,7 @@ server.mount '/', RequestHandler
 
 # Set up file watcher only if not in prod mode
 unless prod
-  listener = Listen.to('templates', 'public') do |modified, added, removed|
+  listener = Listen.to('.') do |modified, added, removed|
     puts "Files changed: #{(modified + added + removed).join(', ')}"
     ws_server.notify_reload
   end
