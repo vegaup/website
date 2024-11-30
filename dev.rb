@@ -113,6 +113,8 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
   end
 
   def inject_live_reload(content)
+    return content if @server.config[:prod]
+    
     ws_host = @server.config[:expose] ? `hostname -I`.strip : 'localhost'
     live_reload_script = <<-SCRIPT
       <script>
@@ -141,32 +143,36 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
   end
 end
 
-# Parse command line arguments
 expose = ARGV.include?('--expose')
+prod = ARGV.include?('--prod')
 
-# Start WebSocket server
-ws_server = WebSocketServer.new(
-  8081,
-  expose ? '0.0.0.0' : 'localhost'
-)
-ws_server.run
+unless prod
+  ws_server = WebSocketServer.new(
+    8081,
+    expose ? '0.0.0.0' : 'localhost'
+  )
+  ws_server.run
+end
 
 # Create and start the HTTP server
 server = NineServer.new(
   Port: 8080,
   Host: expose ? '0.0.0.0' : 'localhost',
   expose: expose,
+  prod: prod,
   AccessLog: []
 )
 
 server.mount '/', RequestHandler
 
-# Set up file watcher
-listener = Listen.to('templates', 'public') do |modified, added, removed|
-  puts "Files changed: #{(modified + added + removed).join(', ')}"
-  ws_server.notify_reload
+# Set up file watcher only if not in prod mode
+unless prod
+  listener = Listen.to('templates', 'public') do |modified, added, removed|
+    puts "Files changed: #{(modified + added + removed).join(', ')}"
+    ws_server.notify_reload
+  end
+  listener.start
 end
-listener.start
 
 # Print banner
 puts "╔══════════════════════════════╗"
@@ -175,6 +181,7 @@ puts "║         By VegaUp Team       ║"
 puts "╚══════════════════════════════╝"
 puts "Cloud listening..."
 puts " • Device: http://localhost:8080"
+puts " • Mode: #{prod ? 'Production' : 'Development'}"
 if expose
   ip = `hostname -I`.strip
   puts " • Network: http://#{ip}:8080"
