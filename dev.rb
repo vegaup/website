@@ -47,7 +47,7 @@ class WebSocketServer
     key = request.match(/Sec-WebSocket-Key: (.+)\r\n/)[1]
     magic = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
     accept = Base64.strict_encode64(Digest::SHA1.digest(key + magic))
-    
+
     response = [
       "HTTP/1.1 101 Switching Protocols",
       "Upgrade: websocket",
@@ -55,7 +55,7 @@ class WebSocketServer
       "Sec-WebSocket-Accept: #{accept}",
       "\r\n"
     ].join("\r\n")
-    
+
     client.write(response)
   end
 
@@ -76,9 +76,17 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
     path = request.path
     path = '/index.html' if path == '/'
 
-    # Try to serve the file from root directory
-    if File.exist?(path)
-      response.body = File.read(path)
+    # Try to serve from root first
+    if File.exist?(File.join('.', path.sub(/^\//, '')))
+      response.body = File.read(File.join('.', path.sub(/^\//, '')))
+      response.content_type = get_content_type(path)
+      return
+    end
+
+    # Try to serve from public directory
+    public_path = File.join('public', path.sub(/^\//, ''))
+    if File.exist?(public_path) && (path.end_with?('.css') || path.end_with?('.js') || path.end_with?('.txt'))
+      response.body = File.read(public_path)
       response.content_type = get_content_type(path)
       return
     end
@@ -104,7 +112,7 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
 
   def inject_live_reload(content)
     return content if @server.config[:prod]
-    
+
     ws_host = @server.config[:expose] ? `hostname -I`.strip : 'localhost'
     live_reload_script = <<-SCRIPT
       <script>
@@ -117,7 +125,7 @@ class RequestHandler < WEBrick::HTTPServlet::AbstractServlet
         };
       </script>
     SCRIPT
-    
+
     content.sub('</body>', "#{live_reload_script}</body>")
   end
 
