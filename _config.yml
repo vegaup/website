@@ -1,5 +1,9 @@
-theme: jekyll-theme-minimal
 title: VegaUp
 description: Configure Debian with ease
-source: public
 baseurl: ""
+
+include:
+  - public
+  - index.html
+
+source: .
