@@ -1,9 +1,4 @@
 title: VegaUp
 description: Configure Debian with ease
 baseurl: ""
-
-include:
-  - public
-  - index.html
-
 source: .
